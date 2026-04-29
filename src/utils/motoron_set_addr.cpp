@@ -53,7 +53,7 @@ char lineBuffer[40];
 // Arduino Due uses Wire1
 #    define WIRE Wire1
 #else
-#    define WIRE Wire
+#    define WIRE Wire1
 #endif
 
 // This function defines which I2C addresses this sketch is

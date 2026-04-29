@@ -1,4 +1,4 @@
 #pragma once
 
-constexpr char* WIFI_SSID = "";
-constexpr char* WIFI_PWD  = "";
+constexpr const char* WIFI_SSID = "BD4B Hyperoptic 1Gb Fibre 2.4Ghz";
+constexpr const char* WIFI_PWD  = "3R9gfN4up9ar";

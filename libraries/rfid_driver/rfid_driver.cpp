@@ -19,6 +19,7 @@ void begin() {
 }
 
 uint32_t update() {
+    return 0;
 }
 
 }; // namespace RFID
