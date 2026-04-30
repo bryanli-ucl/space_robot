@@ -7,7 +7,16 @@
 
 #include "motor_driver.hpp"
 #include "rfid_driver.hpp"
+#include "ultrasonic_driver.hpp"
 #include "wifi_driver.hpp"
+
+// Ultrasonic sensor instances
+static Ultrasonic us_front(D53, D52);
+static Ultrasonic us_left (D4, D5);
+static Ultrasonic us_right(D6, D7);
+
+// RFID reader instance
+static RFIDReader rfid(i2c_addr::RFID);
 
 #include "tasks/robot_fsm.hpp"
 
@@ -71,11 +80,29 @@ auto setup() -> void {
     { // wifi begin
         WifiDriver::begin();
     }
+
+    { // rfid begin
+        rfid.begin();
+    }
+
+    { // ultrasonic sensors begin
+        if (us_front.measure_cm() != -1.f) {
+            printf("Front ultrasound success\n");
+        } else {
+            printf("Front ultrasound error\n");
+        }
+        printf("Ultrasound inited");
+    }
 }
 
 auto loop() -> void {
+    const float d_front = us_front.measure_cm();
+    const float d_left  = us_left.measure_cm();
+    const float d_right = us_right.measure_cm();
 
-    printf(".");
+    printf(
+    "Distances  F: %6.1f cm  L: %6.1f cm  R: %6.1f cm\n",
+    d_front, d_left, d_right);
 
-    delay(100);
+    delay(500);
 }

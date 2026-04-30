@@ -74,12 +74,19 @@ void begin() {
         WiFi.begin(WIFI_SSID, WIFI_PWD);
 
         const uint32_t start_ms = millis();
+        uint8_t prev_status     = 0xFF;
         uint8_t status          = WiFi.status();
         while (status != WL_CONNECTED && (millis() - start_ms) < k_connect_timeout_ms) {
             delay(k_retry_interval_ms);
-            printf("  status: %s (%d)\n", wifi_status_str(status), status);
-            Serial1.flush();
             status = WiFi.status();
+            if (status != prev_status) {
+                printf("  status: %s (%d)\n", wifi_status_str(status), status);
+                Serial1.flush();
+                prev_status = status;
+            } else {
+                printf(".");
+                Serial1.flush();
+            }
         }
 
         if (status == WL_CONNECTED) {

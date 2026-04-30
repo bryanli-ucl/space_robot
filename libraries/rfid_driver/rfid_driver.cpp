@@ -1,25 +1,18 @@
 #include "rfid_driver.hpp"
 
-#include "space_robot.hpp"
-
-#include <MFRC522_I2C.h>
-#include <Wire.h>
 #include <stdio.h>
 
-static MFRC522_I2C mfrc522(i2c_addr::RFID, -1);
+RFIDReader::RFIDReader(uint8_t i2c_addr, int8_t rst_pin, TwoWire* wire)
+    : mfrc522_(i2c_addr, rst_pin, wire) {}
 
-namespace RFID {
+void RFIDReader::begin() {
+    mfrc522_.PCD_Init();
 
-void begin() {
-    mfrc522.PCD_Init();
-
-    if (!mfrc522.PCD_PerformSelfTest()) {
-        printf("RAID Cannot Pass Self Test\n");
+    if (!mfrc522_.PCD_PerformSelfTest()) {
+        printf("RFID Cannot Pass Self Test\n");
     }
 }
 
-uint32_t update() {
+auto RFIDReader::update() -> uint32_t {
     return 0;
 }
-
-}; // namespace RFID
