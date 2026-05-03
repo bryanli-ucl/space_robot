@@ -1,0 +1,120 @@
+@startuml SpaceRobot_Hard_FSM
+
+skinparam state {
+    BackgroundColor<<composite>> LightYellow
+    BorderColor Black
+    ArrowColor Black
+}
+
+skinparam backgroundColor White
+
+title Space Robot State Machine - Hard Difficulty
+
+' ============================================================
+' 顶层 Mission FSM
+' ============================================================
+[*] --> Standby
+
+state Standby
+Standby --> ExitingBase : Launch / ManualDeploy
+
+state ExitingBase {
+    [*] --> ApproachingTagB
+    ApproachingTagB --> RequestingClearance : RFID_B_Read
+    RequestingClearance --> WaitingForDoorB : ExitClearanceGranted
+    WaitingForDoorB --> TraversingTunnelB : DoorOpened
+    TraversingTunnelB --> [*] : TunnelExited
+}
+ExitingBase --> SurfaceExploration : TunnelExited
+
+' ------------------------------------------------------------
+' 复合状态：SurfaceExploration
+' 任何内部状态收到 EmergencyWarning 都会退出复合状态
+' ------------------------------------------------------------
+state SurfaceExploration <<composite>> {
+    [*] --> Navigating
+
+    ' 导航子状态机（内嵌在 SurfaceExploration 中）
+    state Navigating {
+        state LineFollowing : mild ramps:\nauto power boost
+        state GridTraversing : mild ramps:\nauto power boost
+        state ObstacleAvoidance <<Hard>>
+        state History <<history>>
+
+        [*] --> LineFollowing
+        LineFollowing --> GridTraversing : LineLost
+        GridTraversing --> LineFollowing : LineDetected
+
+        LineFollowing --> ObstacleAvoidance : ObstacleDetected
+        GridTraversing --> ObstacleAvoidance : ObstacleDetected
+        ObstacleAvoidance --> History : ObstacleCleared
+    }
+
+    Navigating --> ReadingRFID : RFIDDetected
+    ReadingRFID --> QueryingServer : ReadSuccess
+
+    QueryingServer --> Planting : Response_Fertile
+    QueryingServer --> Navigating : Response_Infertile
+    QueryingServer --> Navigating : Response_Covered\n[mountain range]
+
+    Planting --> Navigating : SeedPlanted
+
+    Navigating --> ScanningForLight : PeriodicLightScan\n/ BonusTrigger
+    ScanningForLight --> Navigating : LightRecorded
+}
+
+SurfaceExploration --> ReturningToBase : MissionComplete\n/ AllSeedsPlanted\n/ LowBattery
+
+SurfaceExploration --> ReturningToBase : EmergencyWarning\n<<Multiple>>
+
+state ReturningToBase
+ReturningToBase --> EnteringBase : AirlockA_Reached
+ReturningToBase --> Stranded : TimerExpired\n/ BatteryDepleted\n/ EmergencyTimerExpired
+
+state EnteringBase {
+    [*] --> WaitingForDoor : entry / send LetMeIn
+    WaitingForDoor --> TraversingTunnelA : DoorOpened
+    TraversingTunnelA --> [*] : ParkingReached
+}
+EnteringBase --> Charging : ParkingReached
+
+' ------------------------------------------------------------
+' 基地内帮别人开门（Hard 协作逻辑）
+' ------------------------------------------------------------
+state AssistingEntry {
+    [*] --> MovingToTagA
+    MovingToTagA --> PressingTagA : TagA_Reached
+    PressingTagA --> ReturningToParking : TagA_Pressed
+    ReturningToParking --> [*] : ParkingReached
+}
+
+Charging --> AssistingEntry : OpenDoorRequest\n[from server]
+Standby --> AssistingEntry : OpenDoorRequest\n[from server]
+
+AssistingEntry --> Charging : AssistanceComplete\n[was charging]
+AssistingEntry --> Standby : AssistanceComplete\n[was standby]
+
+state Charging
+Charging --> Standby : ChargeComplete
+
+state Stranded
+Stranded --> BeingRevived : ReviveButtonPressed\nLED_RedToGreen
+
+state BeingRevived
+BeingRevived --> EmergencyReturn : WiFiReenabled
+
+' ============================================================
+' 说明与图例
+' ============================================================
+legend right
+    |= 颜色/标记 |= 含义 |
+    | <#LightYellow> 复合状态 | 包含子状态机 |
+    | <<Hard>> | Hard Difficulty 新增 |
+    | <<history>> | 历史状态：返回进入前状态 |
+    | 复合状态上的红色转移 | 中断：内部任意子状态都可触发 |
+    | mild ramps | 仅在当前导航状态中增加电机功率，\n不触发状态转移 |
+    | LetMeIn | 外部机器人向 server 发送进入请求 |
+    | OpenDoorRequest | Server 通知基地内机器人去踩 Tag A |
+endlegend
+
+@enduml

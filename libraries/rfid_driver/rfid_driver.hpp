@@ -9,7 +9,9 @@ public:
     explicit RFIDReader(uint8_t i2c_addr, int8_t rst_pin = -1, TwoWire* wire = &Wire);
 
     void begin();
-    auto update() -> uint32_t;
+
+    // Returns the 4-byte UID as uint32_t, or 0 if no card / error.
+    auto read() -> uint32_t;
 
 private:
     MFRC522_I2C mfrc522_;

@@ -1,0 +1,69 @@
+Date : 2026-04-30 16:04:37
+Directory : /home/bryan/Documents/UCL/year1/term3/space_robot
+Total : 29 files,  1558 codes, 456 comments, 473 blanks, all 2487 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C++      |         25 |      1,296 |        174 |        349 |      1,819 |
+| Markdown |          1 |        141 |          0 |         37 |        178 |
+| YAML     |          1 |         56 |        273 |         76 |        405 |
+| Ini      |          1 |         40 |          9 |          5 |         54 |
+| Python   |          1 |         25 |          0 |          6 |         31 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                   |         29 |      1,558 |        456 |        473 |      2,487 |
+| . (Files)                                                                                           |          4 |        262 |        282 |        124 |        668 |
+| libraries                                                                                           |         15 |        425 |         13 |        128 |        566 |
+| libraries/ir_driver                                                                                 |          2 |          3 |          0 |          1 |          4 |
+| libraries/motor_driver                                                                              |          6 |        254 |          3 |         70 |        327 |
+| libraries/rfid_driver                                                                               |          2 |         42 |          6 |         17 |         65 |
+| libraries/ultrasonic_driver                                                                         |          2 |         21 |          2 |         11 |         34 |
+| libraries/wifi_driver                                                                               |          3 |        105 |          2 |         29 |        136 |
+| src                                                                                                 |         10 |        871 |        161 |        221 |      1,253 |
+| src (Files)                                                                                         |          2 |        108 |          9 |         38 |        155 |
+| src/include                                                                                         |          4 |        461 |         25 |         94 |        580 |
+| src/tasks                                                                                           |          3 |        157 |         57 |         53 |        267 |
+| src/utils                                                                                           |          1 |        145 |         70 |         36 |        251 |
++-----------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                            | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /home/bryan/Documents/UCL/year1/term3/space_robot/.clang-format                                     | YAML     |         56 |        273 |         76 |        405 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/AGENTS.md                                         | Markdown |        141 |          0 |         37 |        178 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/dfu_upload.py                                     | Python   |         25 |          0 |          6 |         31 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/ir_driver/ir_driver.cpp                 | C++      |          1 |          0 |          0 |          1 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/ir_driver/ir_driver.hpp                 | C++      |          2 |          0 |          1 |          3 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/chassis_l298n.cpp          | C++      |         36 |          0 |          8 |         44 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/chassis_l298n.hpp          | C++      |         16 |          2 |          7 |         25 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/l298n.cpp                  | C++      |         61 |          0 |         14 |         75 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/l298n.hpp                  | C++      |         17 |          1 |          8 |         26 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/motor_driver.cpp           | C++      |        101 |          0 |         24 |        125 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/motor_driver.hpp           | C++      |         23 |          0 |          9 |         32 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/rfid_driver/rfid_driver.cpp             | C++      |         30 |          5 |         11 |         46 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/rfid_driver/rfid_driver.hpp             | C++      |         12 |          1 |          6 |         19 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/ultrasonic_driver/ultrasonic_driver.cpp | C++      |         10 |          0 |          5 |         15 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/ultrasonic_driver/ultrasonic_driver.hpp | C++      |         11 |          2 |          6 |         19 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/wifi_driver/wifi_driver.cpp             | C++      |         93 |          2 |         21 |        116 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/wifi_driver/wifi_driver.hpp             | C++      |          9 |          0 |          6 |         15 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/wifi_driver/wifi_pwd.hpp                | C++      |          3 |          0 |          2 |          5 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/platformio.ini                                    | Ini      |         40 |          9 |          5 |         54 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/include/literals.hpp                          | C++      |        129 |         22 |         28 |        179 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/include/serial_logger.hpp                     | C++      |        283 |          3 |         49 |        335 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/include/singleton.hpp                         | C++      |         29 |          0 |          7 |         36 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/include/space_robot.hpp                       | C++      |         20 |          0 |         10 |         30 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/printf_redirect.cpp                           | C++      |         10 |          0 |          5 |         15 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/space_robot.cpp                               | C++      |         98 |          9 |         33 |        140 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/robot_fsm.cpp                           | C++      |          0 |          0 |          1 |          1 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/robot_fsm.hpp                           | C++      |         10 |          0 |          4 |         14 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/tinyfsm.hpp                             | C++      |        147 |         57 |         48 |        252 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/utils/motoron_set_addr.cpp                    | C++      |        145 |         70 |         36 |        251 |
+| Total                                                                                               |          |      1,558 |        456 |        473 |      2,487 |
++-----------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

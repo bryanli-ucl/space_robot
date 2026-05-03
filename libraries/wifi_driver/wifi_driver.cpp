@@ -81,11 +81,9 @@ void begin() {
             status = WiFi.status();
             if (status != prev_status) {
                 printf("  status: %s (%d)\n", wifi_status_str(status), status);
-                Serial1.flush();
                 prev_status = status;
             } else {
                 printf(".");
-                Serial1.flush();
             }
         }
 
