@@ -1,0 +1,130 @@
+Date : 2026-05-03 17:46:46
+Directory : /home/bryan/Documents/UCL/year1/term3/space_robot
+Total : 67 files,  7183 codes, 2126 comments, 1587 blanks, all 10896 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| C++        |         50 |      6,028 |      1,920 |      1,344 |      9,292 |
+| Arduino    |          5 |        427 |         82 |         84 |        593 |
+| Python     |          2 |        394 |         81 |         73 |        548 |
+| YAML       |          6 |        227 |         29 |         44 |        300 |
+| plantuml   |          1 |         80 |         14 |         27 |        121 |
+| Markdown   |          1 |         24 |          0 |         14 |         38 |
+| Properties |          1 |          9 |          0 |          1 |         10 |
+| Ini        |          1 |         -6 |          0 |          0 |         -6 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                          | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                             |         67 |      7,183 |      2,126 |      1,587 |     10,896 |
+| . (Files)                                                                                                                     |          1 |         -6 |          0 |          0 |         -6 |
+| docs                                                                                                                          |          1 |         80 |         14 |         27 |        121 |
+| libraries                                                                                                                     |         55 |      5,734 |      1,934 |      1,331 |      8,999 |
+| libraries/Arduino_USBHostMbed5                                                                                                |         48 |      5,842 |      1,905 |      1,354 |      9,101 |
+| libraries/Arduino_USBHostMbed5 (Files)                                                                                        |          2 |         33 |          0 |         15 |         48 |
+| libraries/Arduino_USBHostMbed5/.github                                                                                        |          6 |        227 |         29 |         44 |        300 |
+| libraries/Arduino_USBHostMbed5/.github (Files)                                                                                |          1 |          8 |          4 |          2 |         14 |
+| libraries/Arduino_USBHostMbed5/.github/workflows                                                                              |          5 |        219 |         25 |         42 |        286 |
+| libraries/Arduino_USBHostMbed5/examples                                                                                       |          5 |        427 |         82 |         84 |        593 |
+| libraries/Arduino_USBHostMbed5/examples/DirList                                                                               |          1 |         62 |         18 |         14 |         94 |
+| libraries/Arduino_USBHostMbed5/examples/FileRead                                                                              |          1 |         52 |         17 |         12 |         81 |
+| libraries/Arduino_USBHostMbed5/examples/FileWrite                                                                             |          1 |         56 |         13 |          9 |         78 |
+| libraries/Arduino_USBHostMbed5/examples/OptaDirList                                                                           |          1 |        100 |         14 |         19 |        133 |
+| libraries/Arduino_USBHostMbed5/examples/PortentaOTA                                                                           |          1 |        157 |         20 |         30 |        207 |
+| libraries/Arduino_USBHostMbed5/src                                                                                            |         35 |      5,155 |      1,794 |      1,211 |      8,160 |
+| libraries/Arduino_USBHostMbed5/src (Files)                                                                                    |          1 |          4 |          0 |          1 |          5 |
+| libraries/Arduino_USBHostMbed5/src/USBHost                                                                                    |         11 |      1,931 |        764 |        425 |      3,120 |
+| libraries/Arduino_USBHostMbed5/src/USBHost3GModule                                                                            |          7 |        605 |        247 |        176 |      1,028 |
+| libraries/Arduino_USBHostMbed5/src/USBHostHID                                                                                 |          4 |        420 |        151 |         99 |        670 |
+| libraries/Arduino_USBHostMbed5/src/USBHostHub                                                                                 |          2 |        272 |         78 |         69 |        419 |
+| libraries/Arduino_USBHostMbed5/src/USBHostMIDI                                                                                |          2 |        386 |        240 |         91 |        717 |
+| libraries/Arduino_USBHostMbed5/src/USBHostMSD                                                                                 |          2 |        404 |         74 |        104 |        582 |
+| libraries/Arduino_USBHostMbed5/src/USBHostSerial                                                                              |          3 |        459 |        106 |        107 |        672 |
+| libraries/Arduino_USBHostMbed5/src/targets                                                                                    |          3 |        674 |        134 |        139 |        947 |
+| libraries/Arduino_USBHostMbed5/src/targets/TARGET_STM                                                                         |          3 |        674 |        134 |        139 |        947 |
+| libraries/motor_driver                                                                                                        |          6 |       -108 |         27 |        -23 |       -104 |
+| libraries/wifi_driver                                                                                                         |          1 |          0 |          2 |          0 |          2 |
+| src                                                                                                                           |          8 |        981 |         97 |        156 |      1,234 |
+| src (Files)                                                                                                                   |          1 |        132 |         16 |         26 |        174 |
+| src/tasks                                                                                                                     |          4 |        659 |         70 |         94 |        823 |
+| src/utils                                                                                                                     |          3 |        190 |         11 |         36 |        237 |
+| tools                                                                                                                         |          2 |        394 |         81 |         73 |        548 |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                      | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /home/bryan/Documents/UCL/year1/term3/space_robot/docs/robot_fsm.puml                                                         | plantuml   |         80 |         14 |         27 |        121 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/.github/dependabot.yml                       | YAML       |          8 |          4 |          2 |         14 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/.github/workflows/arduino-lint.yml           | YAML       |         20 |          4 |          4 |         28 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/.github/workflows/compile-examples.yml       | YAML       |         59 |          3 |          9 |         71 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/.github/workflows/report-size-deltas.yml     | YAML       |         17 |          5 |          3 |         25 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/.github/workflows/spell-check.yml            | YAML       |         16 |          2 |          5 |         23 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/.github/workflows/sync-labels.yml            | YAML       |        107 |         11 |         21 |        139 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/README.md                                    | Markdown   |         24 |          0 |         14 |         38 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/examples/DirList/DirList.ino                 | Arduino    |         62 |         18 |         14 |         94 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/examples/FileRead/FileRead.ino               | Arduino    |         52 |         17 |         12 |         81 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/examples/FileWrite/FileWrite.ino             | Arduino    |         56 |         13 |          9 |         78 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/examples/OptaDirList/OptaDirList.ino         | Arduino    |        100 |         14 |         19 |        133 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/examples/PortentaOTA/PortentaOTA.ino         | Arduino    |        157 |         20 |         30 |        207 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/library.properties                           | Properties |          9 |          0 |          1 |         10 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/Arduino_USBHostMbed5.h                   | C++        |          4 |          0 |          1 |          5 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/IUSBEnumerator.h                 | C++        |         12 |         18 |          7 |         37 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBDeviceConnected.cpp           | C++        |         95 |         15 |         15 |        125 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBDeviceConnected.h             | C++        |         88 |         78 |         22 |        188 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBEndpoint.cpp                  | C++        |        124 |         19 |         24 |        167 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBEndpoint.h                    | C++        |         98 |         66 |         31 |        195 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBHALHost.h                     | C++        |         40 |        104 |         30 |        174 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBHost.cpp                      | C++        |      1,075 |         96 |        174 |      1,345 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBHost.h                        | C++        |        127 |        223 |         47 |        397 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBHostConf.h                    | C++        |         35 |         96 |         29 |        160 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/USBHostTypes.h                   | C++        |        200 |         33 |         32 |        265 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost/dbg.h                            | C++        |         37 |         16 |         14 |         67 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/IUSBHostSerial.h         | C++        |         24 |         52 |         20 |         96 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/IUSBHostSerialListener.h | C++        |         12 |         18 |          8 |         38 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/WANDongle.cpp            | C++        |        180 |         21 |         35 |        236 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/WANDongle.h              | C++        |         39 |         44 |         26 |        109 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/WANDongleInitializer.h   | C++        |         35 |         18 |         21 |         74 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/WANDongleSerialPort.cpp  | C++        |        266 |         40 |         35 |        341 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHost3GModule/WANDongleSerialPort.h    | C++        |         49 |         54 |         31 |        134 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostHID/USBHostKeyboard.cpp           | C++        |        165 |         22 |         31 |        218 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostHID/USBHostKeyboard.h             | C++        |         43 |         42 |         21 |        106 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostHID/USBHostMouse.cpp              | C++        |        144 |         30 |         27 |        201 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostHID/USBHostMouse.h                | C++        |         68 |         57 |         20 |        145 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostHub/USBHostHub.cpp                | C++        |        228 |         20 |         44 |        292 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostHub/USBHostHub.h                  | C++        |         44 |         58 |         25 |        127 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostMIDI/USBHostMIDI.cpp              | C++        |        288 |         31 |         44 |        363 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostMIDI/USBHostMIDI.h                | C++        |         98 |        209 |         47 |        354 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostMSD/USBHostMSD.cpp                | C++        |        331 |         38 |         83 |        452 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostMSD/USBHostMSD.h                  | C++        |         73 |         36 |         21 |        130 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostSerial/MtxCircBuffer.h            | C++        |         61 |         16 |         13 |         90 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostSerial/USBHostSerial.cpp          | C++        |        277 |         20 |         51 |        348 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/USBHostSerial/USBHostSerial.h            | C++        |        121 |         70 |         43 |        234 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/targets/TARGET_STM/USBEndpoint_STM.cpp   | C++        |        142 |         47 |         33 |        222 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/targets/TARGET_STM/USBHALHost_STM.cpp    | C++        |        257 |         50 |         47 |        354 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/Arduino_USBHostMbed5/src/targets/TARGET_STM/USBHALHost_STM.h      | C++        |        275 |         37 |         59 |        371 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/chassis_l298n.cpp                                    | C++        |        -36 |          0 |         -8 |        -44 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/chassis_l298n.hpp                                    | C++        |        -16 |         -2 |         -7 |        -25 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/macanum_chassis.cpp                                  | C++        |         45 |          7 |         13 |         65 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/macanum_chassis.hpp                                  | C++        |         23 |         22 |         12 |         57 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/motor_driver.cpp                                     | C++        |       -101 |          0 |        -24 |       -125 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/motor_driver/motor_driver.hpp                                     | C++        |        -23 |          0 |         -9 |        -32 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/libraries/wifi_driver/wifi_pwd.hpp                                          | C++        |          0 |          2 |          0 |          2 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/platformio.ini                                                              | Ini        |         -6 |          0 |          0 |         -6 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/space_robot.cpp                                                         | C++        |        132 |         16 |         26 |        174 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/robot_fsm.cpp                                                     | C++        |          0 |          0 |         -1 |         -1 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/robot_fsm.hpp                                                     | C++        |        -10 |          0 |         -4 |        -14 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/robot_fsm_gen.hpp                                                 | C++        |        160 |          5 |         29 |        194 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/tasks/robot_fsm_impl.cpp                                                | C++        |        509 |         65 |         70 |        644 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/utils/freertos.cpp                                                      | C++        |         31 |          6 |          9 |         46 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/utils/fsm_test.cpp                                                      | C++        |        115 |          3 |         15 |        133 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/src/utils/mouse_test.cpp                                                    | C++        |         44 |          2 |         12 |         58 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/tools/generate_fsm.py                                                       | Python     |        356 |         67 |         60 |        483 |
+| /home/bryan/Documents/UCL/year1/term3/space_robot/tools/tcp_client.py                                                         | Python     |         38 |         14 |         13 |         65 |
+| Total                                                                                                                         |            |      7,183 |      2,126 |      1,587 |     10,896 |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

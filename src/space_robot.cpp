@@ -44,17 +44,26 @@ static MotorDriver::MacanumChassis chassis(l298n_front, l298n_rear);
 // USB wireless mouse
 static USBHostMouse mouse;
 
-// Mouse-controlled chassis velocities (updated in ISR callback)
-static volatile float g_vx = 0.0f; // forward(+)/back(-)
-static volatile float g_vy = 0.0f; // right(+)/left(-)
-static volatile float g_w  = 0.0f; // CCW(+)/CW(-)
+// Mouse-controlled chassis velocities and accelerations
+static volatile float g_vx          = 0.0f;  // forward(+)/back(-) speed
+static volatile float g_vy          = 0.0f;  // right(+)/left(-) speed
+static volatile float g_w           = 0.0f;  // CCW(+)/CW(-) angular speed
+static volatile float g_ax          = 0.0f;  // forward acceleration
+static volatile float g_ay          = 0.0f;  // lateral acceleration
+static volatile bool g_mouse_active = false; // left button held
 
 static void on_mouse_event(uint8_t buttons, int8_t dx, int8_t dy, int8_t dz) {
-    (void)buttons;
-    // Sensitivity tuning: XY motion controls translation, wheel controls rotation.
-    g_vy = dx * 3.0f;  // mouse X  → chassis lateral
-    g_vx = dy * 3.0f;  // mouse Y  → chassis forward
-    g_w  = dz * 60.0f; // wheel    → rotation
+    g_mouse_active = (buttons & 0x01) != 0;
+    if (g_mouse_active) {
+        // Mouse movement acts as acceleration only while left button held
+        g_ay = dx * 2.0f; // lateral acceleration
+        g_ax = dy * 2.0f; // forward acceleration
+    } else {
+        g_ax = 0.0f;
+        g_ay = 0.0f;
+    }
+    // Wheel controls rotation directly, always active (no left-button required)
+    g_w = dz * 60.0f;
 }
 
 Thread task_wifi(osPriorityNormal);
@@ -79,12 +88,15 @@ auto func_task_rfid() -> void {
             mail_fsm_event.put(mail);
         }
 
-        ThisThread::sleep_for(2s);
+        ThisThread::sleep_for(100ms);
     }
 }
 
 auto func_task_motor() -> void {
     using namespace std::chrono_literals;
+    constexpr float dt        = 0.02f;
+    constexpr float max_speed = 200.0f;
+    constexpr float max_w     = 120.0f;
 
     while (1) {
         // Keep mouse enumerated
@@ -94,12 +106,30 @@ auto func_task_motor() -> void {
             }
         }
 
-        // Drive chassis from latest mouse deltas
-        float vx = g_vx;
-        float vy = g_vy;
-        float w  = g_w;
-        chassis.drive(vx, vy, w);
+        bool active = g_mouse_active;
 
+        if (active) {
+            // Integrate mouse movement into translational velocity
+            g_vx += g_ax * dt;
+            g_vy += g_ay * dt;
+        } else {
+            // Friction braking on translation when left button released
+            g_vx *= 0.85f;
+            g_vy *= 0.85f;
+            if (fabsf(g_vx) < 0.5f) g_vx = 0.0f;
+            if (fabsf(g_vy) < 0.5f) g_vy = 0.0f;
+        }
+        // g_w is set directly by wheel (always active)
+
+        // Clamp to safe limits
+        if (g_vx > max_speed) g_vx = max_speed;
+        if (g_vx < -max_speed) g_vx = -max_speed;
+        if (g_vy > max_speed) g_vy = max_speed;
+        if (g_vy < -max_speed) g_vy = -max_speed;
+        if (g_w > max_w) g_w = max_w;
+        if (g_w < -max_w) g_w = -max_w;
+
+        chassis.drive(g_vx, g_vy, g_w);
         ThisThread::sleep_for(20ms);
     }
 }
@@ -108,8 +138,9 @@ auto func_task_debug() -> void {
     while (1) {
         int16_t fl, fr, rl, rr;
         chassis.get_wheel_speeds(fl, fr, rl, rr);
-        printf("[Chassis] FL=%4d FR=%4d RL=%4d RR=%4d | Mouse(vx=%6.1f vy=%6.1f w=%6.1f)\n",
-        fl, fr, rl, rr, g_vx, g_vy, g_w);
+        const char* state = g_mouse_active ? "ACTIVE" : "idle  ";
+        printf("[Chassis] FL=%4d FR=%4d RL=%4d RR=%4d | %s | v=(%6.1f %6.1f %6.1f) a=(%6.1f %6.1f)\n",
+        fl, fr, rl, rr, state, g_vx, g_vy, g_w, g_ax, g_ay);
         ThisThread::sleep_for(500ms);
     }
 }
