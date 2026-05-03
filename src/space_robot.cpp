@@ -92,22 +92,6 @@ auto func_task_motor() -> void {
             if (mouse.connect()) {
                 printf("[Motor] Wireless mouse connected!\n");
             }
-        } else {
-            // Aggressive keep-alive for 2.4G receivers that watchdog-reset
-            // after ~2 s of host inactivity.  SET_IDLE + GET_REPORT every 100 ms.
-            static auto last_ka = Kernel::Clock::now();
-            if (Kernel::Clock::now() - last_ka >= 100ms) {
-                USBHost* host = USBHost::getHostInst();
-                if (host) {
-                    USBDeviceConnected* dev = host->getDevice(0);
-                    if (dev) {
-                        uint8_t dummy[8];
-                        host->controlWrite(dev, 0x21, 0x0A, 0x0000, 0, nullptr, 0);
-                        host->controlRead (dev, 0xA1, 0x01, 0x0100, 0, dummy, sizeof(dummy));
-                    }
-                }
-                last_ka = Kernel::Clock::now();
-            }
         }
 
         // Drive chassis from latest mouse deltas

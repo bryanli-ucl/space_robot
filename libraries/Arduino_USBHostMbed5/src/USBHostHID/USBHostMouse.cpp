@@ -27,11 +27,12 @@ void USBHostMouse::init()
 {
     dev = NULL;
     int_in = NULL;
-    onUpdate = NULL;
-    onButtonUpdate = NULL;
-    onXUpdate = NULL;
-    onYUpdate = NULL;
-    onZUpdate = NULL;
+    // Do NOT clear user callbacks — they should persist across disconnect/reconnect
+    // onUpdate = NULL;
+    // onButtonUpdate = NULL;
+    // onXUpdate = NULL;
+    // onYUpdate = NULL;
+    // onZUpdate = NULL;
     report_id = 0;
     dev_connected = false;
     mouse_device_found = false;
@@ -155,14 +156,6 @@ void USBHostMouse::rxHandler()
 
     if (onZUpdate && (z != (int8_t)new_z)) {
         (*onZUpdate)((int8_t)new_z);
-    }
-
-    // Debug: print parsed values every ~200 ms to avoid flooding
-    static uint32_t last_dbg = 0;
-    uint32_t now = millis();
-    if (now - last_dbg > 200) {
-        printf("[Mouse] btn=%d x=%d y=%d z=%d\n", new_buttons, (int)new_x, (int)new_y, (int)new_z);
-        last_dbg = now;
     }
 
     buttons = new_buttons;
