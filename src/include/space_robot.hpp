@@ -27,3 +27,10 @@ constexpr int GRID_WIDTH  = 9;
 constexpr int GRID_HRIGHT = 9;
 
 extern std::array<std::array<grid_slot_t, GRID_WIDTH>, GRID_HRIGHT> g_grid;
+
+// ------------------------------------------------------------------
+// Fleet WiFi Client Configuration
+// ------------------------------------------------------------------
+constexpr int ROBOT_ID = 12;              // Robot ID in fleet (1~14)
+constexpr char PC_IP[] = "192.168.1.120"; // PC static IP (CHANGE THIS)
+constexpr int PC_PORT  = 8080;            // PC Server port

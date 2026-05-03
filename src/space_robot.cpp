@@ -44,6 +44,24 @@ static MotorDriver::MacanumChassis chassis(l298n_front, l298n_rear);
 // USB wireless mouse
 static USBHostMouse mouse;
 
+// Global WiFi client for PC Server connection
+static WiFiClient g_wifi_client;
+
+struct wifi_msg_t {
+    char buf[128];
+};
+static Mail<wifi_msg_t, 32> mail_wifi_tx;
+
+auto wifi_tx(const char* fmt, ...) -> void {
+    auto mail = mail_wifi_tx.try_alloc();
+    if (!mail) return; // queue full, drop
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(mail->buf, sizeof(mail->buf), fmt, args);
+    va_end(args);
+    mail_wifi_tx.put(mail);
+}
+
 // Mouse-controlled chassis velocities and accelerations
 static volatile float g_vx          = 0.0f;  // forward(+)/back(-) speed
 static volatile float g_vy          = 0.0f;  // right(+)/left(-) speed
@@ -80,14 +98,17 @@ std::array<std::array<grid_slot_t, GRID_WIDTH>, GRID_HRIGHT> g_grid;
 
 auto func_task_rfid() -> void {
     while (1) {
-        uint32_t uid = rfid.read();
+        // uint32_t uid = rfid.read();
+        uint32_t uid = 0x11451419;
         if (uid != 0 && !mail_fsm_event.full()) {
-            auto mail  = mail_fsm_event.try_alloc();
-            mail->type = RobotEvent::Type::RFIDDetected;
-            mail->uid  = uid;
-            mail_fsm_event.put(mail);
+            auto mail = mail_fsm_event.try_alloc();
+            if (mail != nullptr) {
+                mail->type = RobotEvent::Type::RFIDDetected;
+                mail->uid  = uid;
+                mail_fsm_event.put(mail);
+                wifi_tx("EVT:%d:RFID,0x%08X", ROBOT_ID, uid);
+            }
         }
-
         ThisThread::sleep_for(100ms);
     }
 }
@@ -141,12 +162,13 @@ auto func_task_debug() -> void {
         const char* state = g_mouse_active ? "ACTIVE" : "idle  ";
         printf("[Chassis] FL=%4d FR=%4d RL=%4d RR=%4d | %s | v=(%6.1f %6.1f %6.1f) a=(%6.1f %6.1f)\n",
         fl, fr, rl, rr, state, g_vx, g_vy, g_w, g_ax, g_ay);
+
         ThisThread::sleep_for(500ms);
     }
 }
 
 auto func_task_wifi() -> void {
-    printf("[WiFi] Task started\n");
+    printf("[WiFi] Task started, Robot ID = %d\n", ROBOT_ID);
     digitalWrite(BOARD_LED_B, LOW); // 蓝灯亮，表示 WiFi 线程已启动
 
     // Wait for WiFi to come up
@@ -158,64 +180,116 @@ auto func_task_wifi() -> void {
 
     const IPAddress ip = WifiDriver::local_ip();
     printf("[WiFi] Connected, IP: %s\n", ip.toString().c_str());
-
-    WiFiServer server(8080);
-    server.begin();
-    printf("[TCP] Server started on %s:8080\n", ip.toString().c_str());
     digitalWrite(BOARD_LED_B, HIGH); // 蓝灯灭
-    digitalWrite(BOARD_LED_G, LOW);  // 绿灯亮，表示 Server 就绪
 
-    WiFiClient client;
     char rx_buffer[64];
-    int rx_len = 0;
+    int rx_len              = 0;
+    int report_cnt          = 0;
+    int disconnect_cooldown = 0;
 
     while (1) {
-        // Accept new client if current one dropped
-        if (!client || !client.connected()) {
-            client = server.available();
-            if (client) {
-                printf("[TCP] Client connected from %s\n",
-                client.remoteIP().toString().c_str());
+        // Try to connect to PC Server if not connected
+        if (!g_wifi_client.connected()) {
+            digitalWrite(BOARD_LED_G, HIGH); // 绿灯灭
+            g_wifi_client.stop();            // 清理旧 socket，避免 readSocket 线程崩溃
+            if (disconnect_cooldown > 0) {
+                disconnect_cooldown--;
+                ThisThread::sleep_for(100ms);
+                continue;
+            }
+            printf("[WiFi] Connecting to PC %s:%d ...\n", PC_IP, PC_PORT);
+            if (g_wifi_client.connect(PC_IP, PC_PORT)) {
+                printf("[WiFi] Connected to PC Server\n");
+                char hello_buf[32];
+                snprintf(hello_buf, sizeof(hello_buf), "HELLO:%d", ROBOT_ID);
+                g_wifi_client.println(hello_buf);
+                digitalWrite(BOARD_LED_G, LOW); // 绿灯亮，表示已连上PC
                 rx_len = 0;
+                wifi_tx("LOG:%d:Robot online", ROBOT_ID);
+            } else {
+                printf("[WiFi] Connection failed, retry in 5s\n");
+                disconnect_cooldown = 50; // 50 * 100ms = 5s cooldown
+                continue;
             }
         }
 
-        // Non-blocking read line-by-line
-        if (client && client.connected()) {
-            while (client.available() && rx_len < 63) {
-                char c = static_cast<char>(client.read());
-                if (c == '\n') {
-                    rx_buffer[rx_len] = '\0';
-                    printf("[TCP] RX: %s\n", rx_buffer);
+        // Non-blocking read line-by-line from PC
+        while (g_wifi_client.available() && rx_len < 63) {
+            char c = static_cast<char>(g_wifi_client.read());
+            if (c == '\n') {
+                rx_buffer[rx_len] = '\0';
+                printf("[TCP] RX: %s\n", rx_buffer);
 
-                    if (strcmp(rx_buffer, "warning") == 0) {
-                        printf("[TCP] !!! WARNING RECEIVED !!!\n");
-                        digitalWrite(BOARD_LED_R, LOW);  // ON  (active-low)
-                        digitalWrite(BOARD_LED_G, HIGH); // OFF
-                        digitalWrite(BOARD_LED_B, LOW);  // OFF
+                // Parse CMD:<id>:<command> or CMD:ALL:<command>
+                if (strncmp(rx_buffer, "CMD:", 4) == 0) {
+                    char* p     = rx_buffer + 4;
+                    char* colon = strchr(p, ':');
+                    if (colon) {
+                        *colon      = '\0';
+                        bool for_me = (strcmp(p, "ALL") == 0) || (atoi(p) == ROBOT_ID);
+                        char* cmd   = colon + 1;
 
-                        if (!mail_fsm_event.full()) {
-                            auto mail  = mail_fsm_event.alloc();
-                            mail->type = RobotEvent::Type::EmergencyWarning;
-                            mail_fsm_event.put(mail);
+                        if (for_me) {
+                            printf("[TCP] Command for me: %s\n", cmd);
+
+                            if (strcmp(cmd, "warning") == 0) {
+                                printf("[TCP] !!! WARNING RECEIVED !!!\n");
+                                digitalWrite(BOARD_LED_R, LOW);
+                                digitalWrite(BOARD_LED_G, HIGH);
+                                digitalWrite(BOARD_LED_B, LOW);
+                                wifi_tx("LOG:%d:WARNING executed", ROBOT_ID);
+
+                                if (!mail_fsm_event.full()) {
+                                    auto mail = mail_fsm_event.try_alloc();
+                                    if (mail != nullptr) {
+                                        mail->type = RobotEvent::Type::EmergencyWarning;
+                                        mail_fsm_event.put(mail);
+                                    }
+                                }
+                            } else if (strcmp(cmd, "shutdown") == 0) {
+                                printf("[TCP] !!! SHUTDOWN RECEIVED !!!\n");
+                                digitalWrite(BOARD_LED_R, LOW);
+                                digitalWrite(BOARD_LED_G, HIGH);
+                                digitalWrite(BOARD_LED_B, HIGH);
+                                wifi_tx("LOG:%d:SHUTDOWN executed", ROBOT_ID);
+                            } else {
+                                wifi_tx("LOG:%d:Unknown command '%s'", ROBOT_ID, cmd);
+                            }
                         }
                     }
-
-                    if (strcmp(rx_buffer, "shutdown") == 0) {
-                        printf("[TCP] !!! SHUTDOWN RECEIVED !!!\n");
-                        digitalWrite(BOARD_LED_R, LOW);  // ON  (active-low)
-                        digitalWrite(BOARD_LED_G, HIGH); // OFF
-                        digitalWrite(BOARD_LED_B, HIGH); // OFF
-                    }
-
-                    rx_len = 0;
-                } else if (c != '\r') {
-                    rx_buffer[rx_len++] = c;
                 }
+
+                rx_len = 0;
+            } else if (c != '\r' && rx_len < 63) {
+                rx_buffer[rx_len++] = c;
             }
         }
 
-        ThisThread::sleep_for(50ms);
+        // Periodic chassis report (~500ms)
+        report_cnt++;
+        if (report_cnt >= 10) {
+            report_cnt = 0;
+            int16_t fl, fr, rl, rr;
+            chassis.get_wheel_speeds(fl, fr, rl, rr);
+            wifi_tx("DAT:%d:MOTOR,fl=%d,fr=%d,rl=%d,rr=%d", ROBOT_ID, fl, fr, rl, rr);
+            wifi_tx("DAT:%d:VEL,vx=%.1f,vy=%.1f,w=%.1f,ax=%.1f,ay=%.1f,active=%d", ROBOT_ID, g_vx, g_vy, g_w, g_ax, g_ay, g_mouse_active ? 1 : 0);
+        }
+
+        // Flush outbound messages from other tasks (single-threaded WiFi TX)
+        while (true) {
+            osEvent evt = mail_wifi_tx.get(0);
+            if (evt.status == osEventMail) {
+                wifi_msg_t* msg = (wifi_msg_t*)evt.value.p;
+                if (g_wifi_client.connected()) {
+                    g_wifi_client.println(msg->buf);
+                }
+                mail_wifi_tx.free(msg);
+            } else {
+                break;
+            }
+        }
+
+        ThisThread::sleep_for(100ms);
     }
 }
 
@@ -224,15 +298,12 @@ auto func_task_fsm() -> void {
     FSM_Robot::start();
 
     while (1) {
-        osEvent evt = mail_fsm_event.get(0);
-
-        if (evt.status == osEventMail) {
-            RobotEvent* ev = (RobotEvent*)evt.value.p;
+        RobotEvent* ev = mail_fsm_event.try_get();
+        if (ev != nullptr) {
             printf("[FSM] Dispatch event %d\n", static_cast<int>(ev->type));
             FSM_Robot::dispatch(*ev);
             mail_fsm_event.free(ev);
         }
-
         ThisThread::sleep_for(50ms);
     }
 }
@@ -273,7 +344,7 @@ auto setup() -> void {
 
     { // wifi begin
         printf(">>> About to init wifi...\n");
-        // WifiDriver::begin();
+        WifiDriver::begin();
         printf(">>> wifi init done\n");
     }
 
@@ -297,10 +368,10 @@ auto setup() -> void {
 
     { // tasks begin
         printf("\n========== TASK SETUP ==========\n\n");
-        // task_wifi.start(func_task_wifi);
+        task_wifi.start(func_task_wifi);
         task_fsm.start(func_task_fsm);
         task_motor.start(func_task_motor);
-        // task_rfid.start(func_task_rfid);
+        task_rfid.start(func_task_rfid);
         task_debug.start(func_task_debug);
     }
 

@@ -18,14 +18,12 @@
 
 #if USBHOST_MOUSE
 
-USBHostMouse::USBHostMouse()
-{
+USBHostMouse::USBHostMouse() {
     init();
 }
 
-void USBHostMouse::init()
-{
-    dev = NULL;
+void USBHostMouse::init() {
+    dev    = NULL;
     int_in = NULL;
     // Do NOT clear user callbacks — they should persist across disconnect/reconnect
     // onUpdate = NULL;
@@ -33,24 +31,22 @@ void USBHostMouse::init()
     // onXUpdate = NULL;
     // onYUpdate = NULL;
     // onZUpdate = NULL;
-    report_id = 0;
-    dev_connected = false;
+    report_id          = 0;
+    dev_connected      = false;
     mouse_device_found = false;
-    mouse_intf = -1;
+    mouse_intf         = -1;
 
     buttons = 0;
-    x = 0;
-    y = 0;
-    z = 0;
+    x       = 0;
+    y       = 0;
+    z       = 0;
 }
 
-bool USBHostMouse::connected()
-{
+bool USBHostMouse::connected() {
     return dev_connected;
 }
 
-bool USBHostMouse::connect()
-{
+bool USBHostMouse::connect() {
     int len_listen;
 
     if (dev_connected) {
@@ -61,7 +57,7 @@ bool USBHostMouse::connect()
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
 
-            if(host->enumerate(dev, this)) {
+            if (host->enumerate(dev, this)) {
                 break;
             }
             if (mouse_device_found) {
@@ -69,14 +65,40 @@ bool USBHostMouse::connect()
                     /* As this is done in a specific thread
                      * this lock is taken to avoid to process the device
                      * disconnect in usb process during the device registering */
-                    USBHost::Lock  Lock(host);
+                    USBHost::Lock Lock(host);
                     int_in = dev->getEndpoint(mouse_intf, INTERRUPT_ENDPOINT, IN);
                     if (!int_in) {
                         break;
                     }
 
                     printf("[Mouse] New device: VID:%04x PID:%04x [dev: %p - intf: %d - ep_size: %d]\n",
-                           dev->getVid(), dev->getPid(), dev, mouse_intf, int_in->getSize());
+                    dev->getVid(), dev->getPid(), dev, mouse_intf, int_in->getSize());
+                    // Read bInterval from configuration descriptor to show polling rate
+                    uint8_t conf_buf[64];
+                    USB_TYPE bres = host->controlRead(dev,
+                    USB_DEVICE_TO_HOST | USB_RECIPIENT_DEVICE,
+                    GET_DESCRIPTOR,
+                    (CONFIGURATION_DESCRIPTOR << 8) | 0,
+                    0, conf_buf, 64);
+                    if (bres == USB_TYPE_OK) {
+                        uint8_t idx = 0;
+                        while (idx < 64) {
+                            uint8_t len   = conf_buf[idx];
+                            uint8_t dtype = conf_buf[idx + 1];
+                            if (len == 0) break;
+                            if (dtype == ENDPOINT_DESCRIPTOR) {
+                                uint8_t attr = conf_buf[idx + 3] & 0x03;
+                                uint8_t dir  = (conf_buf[idx + 2] >> 7) + 1;
+                                if (attr == 3 && dir == 2) { // INTERRUPT + IN
+                                    uint8_t bInterval = conf_buf[idx + 6];
+                                    printf("[Mouse] bInterval=%d ms -> polling rate=%d Hz\n",
+                                    bInterval, bInterval ? (1000 / bInterval) : 0);
+                                    break;
+                                }
+                            }
+                            idx += len;
+                        }
+                    }
                     dev->setName("Mouse", mouse_intf);
                     host->registerDriver(dev, mouse_intf, this, &USBHostMouse::init);
 
@@ -86,9 +108,9 @@ bool USBHostMouse::connect()
                         len_listen = sizeof(report);
                     }
                 }
-                int ret=host->interruptRead(dev, int_in, report, len_listen, false);
-                MBED_ASSERT((ret==USB_TYPE_OK) || (ret ==USB_TYPE_PROCESSING) || (ret == USB_TYPE_FREE));
-                if ((ret==USB_TYPE_OK) || (ret ==USB_TYPE_PROCESSING)) {
+                int ret = host->interruptRead(dev, int_in, report, len_listen, false);
+                MBED_ASSERT((ret == USB_TYPE_OK) || (ret == USB_TYPE_PROCESSING) || (ret == USB_TYPE_FREE));
+                if ((ret == USB_TYPE_OK) || (ret == USB_TYPE_PROCESSING)) {
                     dev_connected = true;
                 }
                 if (ret == USB_TYPE_FREE) {
@@ -102,8 +124,7 @@ bool USBHostMouse::connect()
     return false;
 }
 
-void USBHostMouse::rxHandler()
-{
+void USBHostMouse::rxHandler() {
     int len = int_in->getLengthTransferred();
     if (len == 0) {
         // resubmit
@@ -114,28 +135,28 @@ void USBHostMouse::rxHandler()
     }
 
     uint8_t new_buttons = buttons;
-    int16_t new_x = x;
-    int16_t new_y = y;
-    int16_t new_z = z;
+    int16_t new_x       = x;
+    int16_t new_y       = y;
+    int16_t new_z       = z;
 
     if (len == 7) {
         // 2.4G wireless receiver: buttons + int16 X + int16 Y + int16 Wheel
         new_buttons = report[0] & 0x07;
-        new_x = (int16_t)(report[1] | (report[2] << 8));
-        new_y = (int16_t)(report[3] | (report[4] << 8));
-        new_z = (int16_t)(report[5] | (report[6] << 8));
+        new_x       = (int16_t)(report[1] | (report[2] << 8));
+        new_y       = (int16_t)(report[3] | (report[4] << 8));
+        new_z       = (int16_t)(report[5] | (report[6] << 8));
     } else if (len >= 8) {
         // Wired mouse with int16: buttons + padding + int16 X + int16 Y + int16 Wheel
         new_buttons = report[0] & 0x07;
-        new_x = (int16_t)(report[2] | (report[3] << 8));
-        new_y = (int16_t)(report[4] | (report[5] << 8));
-        new_z = (int16_t)(report[6] | (report[7] << 8));
+        new_x       = (int16_t)(report[2] | (report[3] << 8));
+        new_y       = (int16_t)(report[4] | (report[5] << 8));
+        new_z       = (int16_t)(report[6] | (report[7] << 8));
     } else if (len >= 4) {
         // Standard boot mouse (int8)
         new_buttons = report[0] & 0x07;
-        new_x = (int8_t)report[1];
-        new_y = (int8_t)report[2];
-        new_z = (int8_t)report[3];
+        new_x       = (int8_t)report[1];
+        new_y       = (int8_t)report[2];
+        new_z       = (int8_t)report[3];
     }
 
     if (onUpdate) {
@@ -159,9 +180,9 @@ void USBHostMouse::rxHandler()
     }
 
     buttons = new_buttons;
-    x = (int8_t)new_x;
-    y = (int8_t)new_y;
-    z = (int8_t)new_z;
+    x       = (int8_t)new_x;
+    y       = (int8_t)new_y;
+    z       = (int8_t)new_z;
 
     // resubmit
     int sz = int_in->getSize();
@@ -169,24 +190,23 @@ void USBHostMouse::rxHandler()
     if (dev) host->interruptRead(dev, int_in, report, sz, false);
 }
 
-/*virtual*/ void USBHostMouse::setVidPid(uint16_t vid, uint16_t pid)
-{
+/*virtual*/ void USBHostMouse::setVidPid(uint16_t vid, uint16_t pid) {
     // we don't check VID/PID for mouse driver
 }
 
-/*virtual*/ bool USBHostMouse::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
+/*virtual*/ bool USBHostMouse::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) // Must return true if the interface should be parsed
 {
     if ((mouse_intf == -1) &&
-            (intf_class == HID_CLASS) &&
-            (intf_subclass == 0x01) &&
-            (intf_protocol == 0x02)) {
+    (intf_class == HID_CLASS) &&
+    (intf_subclass == 0x01) &&
+    (intf_protocol == 0x02)) {
         mouse_intf = intf_nb;
         return true;
     }
     return false;
 }
 
-/*virtual*/ bool USBHostMouse::useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) //Must return true if the endpoint will be used
+/*virtual*/ bool USBHostMouse::useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) // Must return true if the endpoint will be used
 {
     if (intf_nb == mouse_intf) {
         if (type == INTERRUPT_ENDPOINT && dir == IN) {

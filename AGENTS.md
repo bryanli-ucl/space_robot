@@ -157,6 +157,8 @@ Wraps the Arduino `WiFi` library.
 - `begin()` — connects using the hard-coded SSID / password in `wifi_pwd.hpp`.
 - `is_connected()` / `local_ip()` — status helpers.
 
+**Fleet WiFi Architecture:** The robot acts as a **TCP Client** and connects to a central **PC Server** (`tools/web/pc_server.py`). This allows one PC to manage up to 14 robots. Each robot reports its ID via `HELLO:<id>` upon connection. The PC sends targeted commands (`CMD:<id>:<command>`) or broadcasts (`CMD:ALL:<command>`). See `tools/web/pc_server.py` and `src/space_robot.cpp` for implementation.
+
 ### `ir_driver`
 Currently a placeholder (empty implementation).
 
