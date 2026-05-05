@@ -137,6 +137,11 @@ private:
     void (*onZUpdate)(int8_t z);
     int report_id;
     void init();
+
+public:
+    volatile uint8_t dbg_report[8];
+    volatile uint8_t dbg_len;
+    volatile uint32_t dbg_rx_cnt;
 };
 
 #endif

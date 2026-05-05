@@ -126,6 +126,12 @@ bool USBHostMouse::connect() {
 
 void USBHostMouse::rxHandler() {
     int len = int_in->getLengthTransferred();
+
+    // save debug snapshot
+    dbg_len = (len > 8) ? 8 : len;
+    for (int i = 0; i < dbg_len; i++) dbg_report[i] = report[i];
+    dbg_rx_cnt++;
+
     if (len == 0) {
         // resubmit
         int sz = int_in->getSize();
