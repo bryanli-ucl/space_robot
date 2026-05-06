@@ -36,17 +36,14 @@ RFIDReader rfid(i2c_addr::RFID);
 // EN pins MUST be PWM-capable on Giga R1.
 
 // L298N #1 (front motors)
-static L298N l298n_front(pins::L298N_FRONT_EN_A, pins::L298N_FRONT_IN1, pins::L298N_FRONT_IN2,
-                         pins::L298N_FRONT_IN3, pins::L298N_FRONT_IN4, pins::L298N_FRONT_EN_B);
+static L298N l298n_front(pins::L298N_FRONT_EN_A, pins::L298N_FRONT_IN1, pins::L298N_FRONT_IN2, pins::L298N_FRONT_IN3, pins::L298N_FRONT_IN4, pins::L298N_FRONT_EN_B);
 
 // L298N #2 (rear motors)
-static L298N l298n_rear(pins::L298N_REAR_EN_A, pins::L298N_REAR_IN1, pins::L298N_REAR_IN2,
-                        pins::L298N_REAR_IN3, pins::L298N_REAR_IN4, pins::L298N_REAR_EN_B);
+static L298N l298n_rear(pins::L298N_REAR_EN_A, pins::L298N_REAR_IN1, pins::L298N_REAR_IN2, pins::L298N_REAR_IN3, pins::L298N_REAR_IN4, pins::L298N_REAR_EN_B);
 
 // L298N #3 (5th motor, only motor_a used)
 // EN_B = D13 (PWM-capable, unused motor_b channel)
-static L298N l298n_extra(pins::L298N_EXTRA_EN_A, pins::L298N_EXTRA_IN1, pins::L298N_EXTRA_IN2,
-                         pins::L298N_EXTRA_IN3, pins::L298N_EXTRA_IN4, pins::L298N_EXTRA_EN_B);
+static L298N l298n_extra(pins::L298N_EXTRA_EN_A, pins::L298N_EXTRA_IN1, pins::L298N_EXTRA_IN2, pins::L298N_EXTRA_IN3, pins::L298N_EXTRA_IN4, pins::L298N_EXTRA_EN_B);
 
 // Mecanum chassis
 static MotorDriver::MacanumChassis chassis(l298n_front, l298n_rear);
@@ -78,7 +75,7 @@ static volatile int32_t g_pose_y   = 0;
 static volatile float g_pose_theta = 0.0f;
 
 // Wheel target ticks for position tracking
-static volatile int32_t g_wheel_target_fl = 0;
+static volatile float g_wheel_target_fl   = 0.0f;
 static volatile int32_t g_wheel_target_fr = 0;
 static volatile int32_t g_wheel_target_rl = 0;
 static volatile int32_t g_wheel_target_rr = 0;
@@ -122,7 +119,7 @@ static void on_mouse_event(uint8_t buttons, int8_t dx, int8_t dy, int8_t dz) {
     g_mouse_active = (buttons & 0x01) != 0;
 
     // Closed-loop: mouse X directly accumulates FL wheel target ticks
-    g_wheel_target_fl += static_cast<int32_t>(dx) * WHEEL_TICKS_PER_MOUSE_DX;
+    g_wheel_target_fl += static_cast<float>(dx) * WHEEL_TICKS_PER_MOUSE_DX;
 
     int32_t new_x = g_mouse_target_x + static_cast<int32_t>(static_cast<float>(dx) * MOUSE_SCALE);
     int32_t new_y = g_mouse_target_y + static_cast<int32_t>(static_cast<float>(dy) * MOUSE_SCALE);
@@ -142,6 +139,7 @@ Thread task_motor(osPriorityHigh1);
 Thread task_fsm(osPriorityAboveNormal3);
 Thread task_rfid(osPriorityBelowNormal4);
 Thread task_position_control(osPriorityHigh);
+Thread task_button(osPriorityBelowNormal5);
 
 std::array<std::array<grid_slot_t, GRID_WIDTH>, GRID_HRIGHT> g_grid;
 
@@ -153,8 +151,8 @@ static volatile bool g_rfid_response_fertile = false;
 
 auto func_task_rfid() -> void {
     while (1) {
-        // uint32_t uid = rfid.read();
-        uint32_t uid = 0;
+        uint32_t uid = rfid.read();
+        // uint32_t uid = 0;
         if (uid != 0) {
             // Clear any stale flag before sending new query
             g_rfid_response_ready = false;
@@ -194,12 +192,12 @@ auto func_task_position_control() -> void {
     // Self-test on boot: run FL motor at fixed PWM for 2 s to verify wiring
     wifi_tx("LOG:%d:SELFTEST begin", ROBOT_ID);
     for (int i = 0; i < 2000; ++i) {
-        int16_t test_pwm = (i < 1000) ? 150 : -150;  // 1 s forward, 1 s backward
+        int16_t test_pwm = (i < 1000) ? 150 : -150; // 1 s forward, 1 s backward
         motor_fl.set_pwm(test_pwm);
         if ((i % 100) == 0) {
             wifi_tx("LOG:%d:SELFTEST i=%d pwm=%d enc=%ld",
-                    ROBOT_ID, i, test_pwm,
-                    static_cast<long>(motor_fl.get_position()));
+            ROBOT_ID, i, test_pwm,
+            static_cast<long>(motor_fl.get_position()));
         }
         ThisThread::sleep_for(1ms);
     }
@@ -209,7 +207,7 @@ auto func_task_position_control() -> void {
     while (1) {
         if (!g_position_mode) {
             // Closed-loop single-wheel control: mouse X -> FL wheel target ticks
-            motor_fl.set_target_ticks(g_wheel_target_fl);
+            motor_fl.set_target_ticks(static_cast<int32_t>(g_wheel_target_fl));
             motor_fl.update();
             motor_fr.stop();
             motor_rl.stop();
@@ -221,10 +219,10 @@ auto func_task_position_control() -> void {
             if (++print_cnt >= 100) {
                 print_cnt = 0;
                 wifi_tx("LOG:%d:CLOSEDLOOP enc=%ld target=%ld pwm=%d",
-                        ROBOT_ID,
-                        static_cast<long>(motor_fl.get_position()),
-                        static_cast<long>(motor_fl.get_target()),
-                        motor_fl.get_output());
+                ROBOT_ID,
+                static_cast<long>(motor_fl.get_position()),
+                static_cast<long>(motor_fl.get_target()),
+                motor_fl.get_output());
             }
         } else {
             // Auto-program mode: stop all motors for now
@@ -425,6 +423,21 @@ auto func_task_fsm() -> void {
     }
 }
 
+auto func_task_button() -> void {
+
+    pinMode(D22, INPUT_PULLUP);
+    pinMode(D23, OUTPUT);
+
+    while (1) {
+        if (digitalRead(D22) == LOW) {
+            digitalWrite(D23, HIGH);
+        } else {
+            digitalWrite(D23, LOW);
+        }
+        ThisThread::sleep_for(100ms);
+    }
+}
+
 auto setup() -> void {
 
     { // pin setup
@@ -467,7 +480,7 @@ auto setup() -> void {
         motor_rr.begin();
         motor_ex.begin();
 
-        motor_fl.set_pid(-0.1f, 0.0f, 0.0f);  // negative P to match reversed wiring
+        motor_fl.set_pid(-0.1f, -0.01f, 0.0f); // negative P + I for zero steady-state error
         motor_fr.set_pid(1, 0, 0);
         motor_rl.set_pid(1, 0, 0);
         motor_rr.set_pid(1, 0, 0);
@@ -507,6 +520,7 @@ auto setup() -> void {
         task_motor.start(func_task_motor);
         task_rfid.start(func_task_rfid);
         task_position_control.start(func_task_position_control);
+        task_button.start(func_task_button);
     }
 
     printf("\n========== SETUP COMPLETE ==========\n\n");

@@ -31,8 +31,8 @@ void PositionMotor::update() {
     // Integral windup protection: only accumulate when error is small
     if (error < 1000 && error > -1000) {
         integral_ += error;
-        if (integral_ > MAX_OUTPUT * 2) integral_ = MAX_OUTPUT * 2;
-        if (integral_ < -MAX_OUTPUT * 2) integral_ = -MAX_OUTPUT * 2;
+        if (integral_ > MAX_OUTPUT * 10) integral_ = MAX_OUTPUT * 10;
+        if (integral_ < -MAX_OUTPUT * 10) integral_ = -MAX_OUTPUT * 10;
     } else {
         // Clear integral when far from target to avoid saturation overshoot
         integral_ = 0;
@@ -48,6 +48,11 @@ void PositionMotor::update() {
 
     if (output > MAX_OUTPUT) output = MAX_OUTPUT;
     if (output < -MAX_OUTPUT) output = -MAX_OUTPUT;
+
+    // Deadband compensation: this motor needs ~80 PWM to overcome static friction
+    constexpr int16_t MIN_PWM = 80;
+    if (output > 0 && output < MIN_PWM) output = MIN_PWM;
+    if (output < 0 && output > -MIN_PWM) output = -MIN_PWM;
 
     last_output_ = output;
 

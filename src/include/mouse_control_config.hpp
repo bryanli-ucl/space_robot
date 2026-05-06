@@ -10,7 +10,7 @@
 
 // Mouse dx/dy scaling factor: 1 mouse pixel -> MOUSE_SCALE screen pixels
 constexpr float MOUSE_SCALE = 10.0f;  // screen pixels per mouse pixel
-constexpr int32_t WHEEL_TICKS_PER_MOUSE_DX = 1;   // closed-loop: 1 mouse X pixel -> 1 wheel tick
+constexpr float WHEEL_TICKS_PER_MOUSE_DX = 0.1f;  // closed-loop: 1 mouse X pixel -> 0.1 wheel tick
 
 // Screen-to-physical mapping: PIXELS_PER_METER screen pixels = 1 meter
 constexpr int32_t PIXELS_PER_METER = 10000;
